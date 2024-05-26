@@ -121,12 +121,54 @@ li:hover {
 #introduction p {
 	margin-bottom: 0.5em;
 }
+
+#portfolio {
+	margin-top: 150px;
+}
+
 #portfolio h2 {
 	text-align: center;
 	margin-bottom: 1em;
 }
+
+.categories {
+	width: 585px;
+	height: 38px;
+	margin: 70px auto 0px auto;
+	display: flex;
+	justify-content: space-between;
+}
+
+.categories button {
+	display: block;
+	width: 100px;
+	height: 37px;
+	background-color: #fff;
+	color: #1D6154;
+	border: 1px solid #1D6154;
+	border-radius: 60px;
+	font-family: 'syne';
+	font-weight: 700;
+	font-size: 16px;
+	line-height: 19.2px;
+}
+
+.categories button:nth-child(3) {
+	width: 157px;
+}
+
+.categories button:nth-child(4) {
+	width: 198px;
+}
+
+.categories button:focus {
+	background-color: #1D6154;
+	color: #fff;
+}
+
 .gallery {
 	width: 100%;
+	margin-top: 50px;
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	grid-column-gap: 20px;
@@ -139,13 +181,14 @@ li:hover {
 }
 #contact {
 	width: 50%;
-margin: auto;
+	margin: auto;
 }
 #contact > * {
 	text-align: center;
 
 }
 #contact h2{
+	margin-top: 70px;
 	margin-bottom: 20px;
 }
 #contact form {
@@ -185,4 +228,3 @@ footer nav ul {
 	justify-content: flex-end;
 	margin: 2em
 }
-
