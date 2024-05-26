@@ -39,7 +39,6 @@ btnTousLesCategories.addEventListener("click", () => {
 // Filtre des objets
 btnObjets.addEventListener("click", () => {
     const travauxObjets = travaux.filter(function (travaux){
-
         return travaux.categoryId === 1;
     })
     
