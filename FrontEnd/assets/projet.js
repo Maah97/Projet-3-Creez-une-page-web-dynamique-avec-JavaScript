@@ -1,8 +1,6 @@
 // Appels à l'API et recuperation des données
 const reponseWorks = await fetch('http://localhost:5678/api/works');
-// const reponseCategories = await fetch('http://localhost:5678/api/categories');
 const travaux = await reponseWorks.json();
-// const categories = await reponseCategories.json();
 
 // recuperation de la div galellery du html
 let galerie = document.querySelector(".gallery");
@@ -22,21 +20,20 @@ function Afficher(projets) {
 
 // chargement des travaux de l'api et suppression des travaux du html 
 Afficher([...new Set(travaux)]);
-console.log(galerie);
-console.log(travaux);
 
 // PARTIE filtre par categories
 
-// Recuperation des evenements des boutons
+// Declaration des variables pour la selection des boutons
 const btnTousLesCategories = document.querySelector(".btn-tous-les-Categories");
 const btnObjets = document.querySelector(".btn-Objets");
 const btnAppartements = document.querySelector(".btn-appartements");
 const btnHotelsEtRestaurant = document.querySelector(".btn-hotels-et-restaurant");
 
+// Ecoute des evenements click des boutons des categories
+
 // Filtre de tous les categories
 btnTousLesCategories.addEventListener("click", () => {
     Afficher([...new Set(travaux)]);
-    console.log([...new Set(travaux)]);
 });
 
 // Filtre des objets
