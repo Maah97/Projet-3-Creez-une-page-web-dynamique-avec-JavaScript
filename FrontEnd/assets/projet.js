@@ -1,9 +1,21 @@
-// Appels à l'API et recuperation des données
-const reponseWorks = await fetch('http://localhost:5678/api/works');
-const travaux = await reponseWorks.json();
+// recuperation du token d'authentifaction obtenu de la page de connexion
+let tokenAuthentification = localStorage.getItem("token");
+console.log(tokenAuthentification);
 
-// recuperation de la div galellery du html
-let galerie = document.querySelector(".gallery");
+// Appels à l'API et recuperation des données
+let reponseWorks = await fetch('http://localhost:5678/api/works');
+let reponseCategories = await fetch('http://localhost:5678/api/categories');
+let travaux = await reponseWorks.json();
+console.log(travaux);
+let categoriesAPI = await reponseCategories.json();
+let categoriesAPImapName = categoriesAPI.map(categorieAPI => categorieAPI.name);
+let categoriesAPImapId = categoriesAPI.map(categorieAPI => categorieAPI.id);
+let categories = [...new Set(categoriesAPImapName)];
+let categoriesId = [...new Set(categoriesAPImapId)];
+
+// recuperation de la div categorie et de la div galellery du html
+const galerie = document.querySelector(".gallery");
+const Divcategorie = document.querySelector(".categories");
 
 // creation fonction affichage de la galerie
 function Afficher(projets) {
@@ -11,7 +23,7 @@ function Afficher(projets) {
     for (let i = 0; i < projets.length; i++) {
         galerie.innerHTML += `
             <figure>
-                <img src="${projets[i].imageUrl}" alt="${projets[i].title}">
+                <img id="img-${projets[i].id}" src="${projets[i].imageUrl}" alt="${projets[i].title}">
                 <figcaption>${projets[i].title}</figcaption>
             </figure>
         `
@@ -21,44 +33,430 @@ function Afficher(projets) {
 // chargement des travaux de l'api et suppression des travaux du html 
 Afficher([...new Set(travaux)]);
 
-// PARTIE filtre par categories
+// PARTIE EDITION SI TENTATIVE DE CONNEXION REUSSIE
+ if ((tokenAuthentification === undefined)||(tokenAuthentification === false)||(tokenAuthentification === null)) {
+     // PARTIE filtre par categories
+     
+     // Declaration de la variable pour la selection du bouton toutes les catgories
+     const btnTousLesCategories = document.querySelector(".btn-tous-les-Categories");
+     
+     // Affichage de tous les categories
+     btnTousLesCategories.addEventListener("click", () => {
+        Afficher([...new Set(travaux)])
+    });
+     
+    // Creation des boutons des categories et Ecoute des evenements click des boutons des categories
+    for (let i = 0; i < categories.length; i++) {
+         let btnCategorie = document.createElement("button");
+         btnCategorie.textContent = categories[i];
+         Divcategorie.appendChild(btnCategorie);
+         btnCategorie.addEventListener("click", () => {
+             const filtreTravaux = travaux.filter(function (travaux){
+                 return travaux.categoryId === categoriesId[i];
+            })
+            Afficher([...new Set(filtreTravaux)]);
+         })
+    }
+ } else { // Changement en mode d'edition de la page d'accueil si l'authentification est vrai
 
-// Declaration des variables pour la selection des boutons
-const btnTousLesCategories = document.querySelector(".btn-tous-les-Categories");
-const btnObjets = document.querySelector(".btn-Objets");
-const btnAppartements = document.querySelector(".btn-appartements");
-const btnHotelsEtRestaurant = document.querySelector(".btn-hotels-et-restaurant");
+    // Recuperation des elements du DOM
+    const container = document.querySelector(".main-container");
+    const navBarEdit = document.getElementById("nav-bar-edit");
+    const lienlogout = document.getElementById("login-logout");
+    const btnModifier = document.querySelector(".btn-modifier");
 
-// Ecoute des evenements click des boutons des categories
-
-// Filtre de tous les categories
-btnTousLesCategories.addEventListener("click", () => {
-    Afficher([...new Set(travaux)]);
-});
-
-// Filtre des objets
-btnObjets.addEventListener("click", () => {
-    const travauxObjets = travaux.filter(function (travaux){
-        return travaux.categoryId === 1;
+    // Application et suppression des classes pour changer l'apparence du site
+    navBarEdit.classList.remove("masquer");
+    lienlogout.textContent = "logout"
+    container.classList.add("main-container-page-edit");
+    btnModifier.classList.remove("invisible");
+    Divcategorie.classList.add("btn-inactive");
+    lienlogout.addEventListener("click", () => {
+        localStorage.removeItem("token");
     })
-    
-    Afficher([...new Set(travauxObjets)]);
-});
+ }
 
-// Filtre des appartements
-btnAppartements.addEventListener("click", () => {
-    const travauxAppartements = travaux.filter(function (objet){
-        return objet.categoryId === 2;
-    })
-    
-    Afficher([...new Set(travauxAppartements)]);
-});
+ 
+ // GESTION DES MODALS
 
-// Filtre des Hotels et restaurant
-btnHotelsEtRestaurant.addEventListener("click", () => {
-    const travauxHotelsEtRestaurant = travaux.filter(function (travaux){
-        return travaux.categoryId === 3;
-    })
+ // 1. Déclaration des variable
+
+ let modal = null;
+
+ // 2. Gestion ouverture et fermeture des modals
+ const lienOuvertureModal = document.getElementById("lien-modal");
+
+// Création fonction ouverture modal
+const openModal = async function (e) {
+    e.preventDefault();
+
+    // Déclaration des variables
+    const target = e.target.parentElement.getAttribute("href");
+    modal = await loadModal(target);
+    const modalGaleriePhoto = modal.querySelector("#modal-galerie-photo");
+    const modalAjoutPhoto = modal.querySelector("#modal-ajout-photo")
+    const btnAjoutPhoto = modal.querySelector(".btn-ajout-photo");
+    const retourAuModalGalerie = modal.querySelector("#retour")
+    const btnFermetureModal = modal.querySelectorAll("#btn-fermeture-modal");
+    const containerModals = modal.querySelectorAll(".container");
+
+    // affichage de la modal de galerie de photo en jouant sur les valeurs des display des modals et avec des classes CSS
+    modal.style.display = null;
+    modal.removeAttribute("aria-hidden");
+    modal.setAttribute("aria-modal", "true");
+    modalGaleriePhoto.classList.remove("galerie-photo");
+    modalAjoutPhoto.classList.add("ajout-photo");
+    AfficherTravauxDansLeModal();
+
+    // Gestion d'ajout de travai dans l'API et dans la galerie
+
+    // declaration du bouton d'ajout de travail et de l'ensemble des elements qui entrent dans le cadre de l'ajout de travail
+    const formAjoutWork = modal.querySelector(".titre-categorie-image"); // recuperation de l'element form du DOM
+    const labelCategorie = modal.querySelector(".categorie"); // recuperation de l'element label categorie
+    const btnAjoutPhotoTravail = modal.querySelector("#ajout-photo-work"); // recuperation de l'element bouton pour charger une nouvelle image
+    let titreWork = modal.querySelector("#titre"); // recuperation de l'element input du titre
+    let categorieWork = modal.querySelector("#categorie"); // recuperation de l'element input de la categorie
+    let hr = modal.querySelector(".hr"); // recuperation de l'element bar horizontal 
+
+    // let msgAvertissement = document.createElement("p"); // Creation dans le DOM de l'element paragraphe pour afficher le msg d'avertissement en cas d'un mauvais saisi
+    // msgAvertissement.classList.add("msg-avertissement");
+    // modal.querySelector(".fichier-photo").appendChild(msgAvertissement);
+    let msgErreurTitre = document.createElement("p"); // Creation dans le DOM de l'element paragraphe pour afficher le msg d'avertissement en cas d'un mauvais saisi du titre
+    msgErreurTitre.classList.add("msg-erreur");
+    formAjoutWork.insertBefore(msgErreurTitre, labelCategorie); 
+    let msgErreurCategorie = document.createElement("p"); // Creation dans le DOM de l'element paragraphe pour afficher le msg d'avertissement en cas d'un mauvais saisi de la categorie
+    msgErreurCategorie.classList.add("msg-erreur");
+    formAjoutWork.insertBefore(msgErreurCategorie, hr); 
+    let regexTitreValue = new RegExp("^[a-z0-9A-Z._-]+$"); // creation de regex pour verifier l'expression du titre
+    let regexCategorieValue = new RegExp("^[0-9]+$"); // creation de regex pour verifier l'expression de la categorie
+    let cat = null; 
+    let tit = null;
+   
+
+
+    // ajout de la photo du fichier selectionné
+    btnAjoutPhotoTravail.addEventListener("change", chargementImageSelectionne);
+
+    // reception dynamique des donnees du formulaire puis gestion d'activation du bouton valider
+
+    // reception du titre du projet et verification de son expression
+    const btnValider = modal.querySelector(".btn-valider-ajout-image");
+    titreWork.addEventListener("input", (inputevent) => {
+        msgErreurTitre.style.display = "none";
+        tit = inputevent.target.value;
+        verificationTitre(inputevent.target.value, msgErreurTitre, titreWork);
+        if((regexTitreValue.test(tit)) && (regexCategorieValue.test(cat)) && (modal.querySelector("#ajout-photo-work").files.length === 1)){
+            btnValider.removeAttribute("disabled");
+        } else {
+            btnValider.setAttribute("disabled", true);
+        }
+    });
+
+    // reception de la categorie du projet et verification de son expression
+    categorieWork.addEventListener("input", (inputevent) => {
+        msgErreurCategorie.style.display = "none";
+        cat = inputevent.target.value;
+        verificationCategorie(inputevent.target.value, msgErreurCategorie, categorieWork);
+        if((regexCategorieValue.test(cat)) && (regexTitreValue.test(tit)) && (modal.querySelector("#ajout-photo-work").files.length === 1)){
+            btnValider.removeAttribute("disabled");
+        } else {
+            btnValider.setAttribute("disabled", true);
+        }
+    });
+
+    // Envoie des donnees du formulaire et creation d'un nouveau projet dans le DOM
+    formAjoutWork.addEventListener("submit", (e) => {
+        e.preventDefault();
+        let formData = new FormData();
+        formData.append("title", titreWork.value);
+        formData.append("category", categorieWork.value);
+        formData.append("image", modal.querySelector("#ajout-photo-work").files[0], modal.querySelector("#ajout-photo-work").files[0].name);
+        console.log(formData.get("titre"), formData.get("categorie"));
+        console.log(formData.get("image"));
+        postForm(formData).then(async (value) => {
+            if ((value === undefined)||(value === false)) {
+                console.error("L'ajout de travail n'a pas été effectué :", erreur);
+            } else {
+                console.log(value);
+                reponseWorks = await fetch('http://localhost:5678/api/works');
+                travaux = await reponseWorks.json();
+                Afficher(travaux);
+                AfficherTravauxDansLeModal();
+                modal.style.display = "none";
+                modal.setAttribute("aria-hidden", "true");
+                modal.removeAttribute("aria-modal");
+                for (let i = 0; i < modal.querySelectorAll("#btn-fermeture-modal").length; i++) {
+                    modal.querySelectorAll("#btn-fermeture-modal")[i].removeEventListener("click", closeModal);
+                    modal.querySelectorAll(".container")[i].removeEventListener("click", stopPropagation);
+                }
+                modal.removeEventListener("click", closeModal);
+                modal = null;
+            }
+        })
+    });
+
+    // Gestion de suppression des elements dans la modal galerie photo
+
+    // declaration du bouton de suppression des modals
+    const btnSupprimerPhoto = modal.querySelectorAll(".icone-supprimer-photo");
+
+    // suppression des photos au clique des boutons
+    for (let i = 0; i < btnSupprimerPhoto.length; i++) {
+        btnSupprimerPhoto[i].addEventListener("click",supprimerPhoto);
+    }
+
+    // affichage de la modal ajouter photo au clique du bouton ajouter photo dans la modal galerie photo
+    btnAjoutPhoto.addEventListener("click", () => {
+        modalGaleriePhoto.classList.add("galerie-photo");
+        modalAjoutPhoto.classList.remove("ajout-photo");
+        modal.querySelector(".icone-image").style.display = null;
+        modal.querySelector(".upload-file").style.display = null;
+        modal.querySelector(".txt-type-fichier-taille-max").style.display = null;
+        msgAvertissement.style.display = "none";
+        msgErreurCategorie.style.display = "none";
+        msgErreurTitre.style.display = "none";
+        titreWork.classList.remove("style-erreur");
+        categorieWork.classList.remove("style-erreur");
+        titreWork.value = "";
+        categorieWork.value = "";
+        if(modal.querySelector(".img-selectionne")){
+            modal.querySelector(".img-selectionne").remove();
+        };
+    });
+
+    // Re-affichage de la modal galerie photo au click sur la fleche de retour presente dans la modal ajouter photo 
+    retourAuModalGalerie.addEventListener("click", () => {
+        modalGaleriePhoto.classList.remove("galerie-photo");
+        modalAjoutPhoto.classList.add("ajout-photo");
+    });
+
+    // Fermeture entier de tous les modals au clique sur la croix de fermeture
+    for (let i = 0; i < btnFermetureModal.length; i++) {
+        btnFermetureModal[i].addEventListener("click", closeModal);
+        containerModals[i].addEventListener("click", stopPropagation);
+    }
+
+    // fermeture de la modal au clique en dehors des modals focus
+    modal.addEventListener("click", closeModal);
+}
+
+// Creation de la fonction qui permet d'afficher les photos dans la modal galerie photo
+function AfficherTravauxDansLeModal() {
+    const galerieModal = modal.querySelector(".galerie-modal");
+    galerieModal.innerHTML = ""
+    for (let i = 0; i < travaux.length; i++) {
+        galerieModal.innerHTML += `
+                <figure id="image-${travaux[i].id}">
+                    <img src="${travaux[i].imageUrl}" alt="${travaux[i].title}">
+                    <div id="${travaux[i].id}" class="icone-supprimer-photo"><i class="fa-solid fa-trash-can fa-2xs"></i>
+                    </div>
+                </figure>
+            `
+    }
+}
+
+// creation de la fonction permettant d'afficher l'image selectionné
+const chargementImageSelectionne = function (e) {
+    e.preventDefault();
+    let fichierSelectionne = modal.querySelector("#ajout-photo-work").files;
+    console.log(fichierSelectionne);
+    console.log(fichierSelectionne[0].size);
+    console.log(fichierSelectionne[0].type);
+    if (fichierSelectionne.length === 0) {
+        let msgNonSelectionDeFichier = document.createElement("p");
+        msgNonSelectionDeFichier.textContent = "Pas de fichier selectionné pour le chargement";
+        modal.querySelector(".fichier-photo").appendChild(msgNonSelectionDeFichier);
+        return false
+    } else {
+            if (verificationTypeFichier(fichierSelectionne[0]) && verificationTailleImage(fichierSelectionne[0])) {
+                modal.querySelector(".icone-image").style.display = "none";
+                modal.querySelector(".upload-file").style.display = "none";
+                modal.querySelector(".txt-type-fichier-taille-max").style.display = "none";
+                let imgSelectionne = document.createElement("img");
+                imgSelectionne.src = window.URL.createObjectURL(fichierSelectionne[0]);
+                imgSelectionne.classList.add("img-selectionne");
+                modal.querySelector(".fichier-photo").appendChild(imgSelectionne);
+                modal.querySelector(".fichier-photo").style.justifyContent = "center";
+                modal.querySelector(".msg-avertissement").style.display = "none";
+                let regexTitreValue = new RegExp("^[a-z0-9A-Z._-]+$");
+                let regexCategorieValue = new RegExp("^[0-9]+$");
+                let cat = modal.querySelector("#categorie").value;
+                let tit = modal.querySelector("#titre").value;
+                let btnValider = modal.querySelector(".btn-valider-ajout-image");
+                if((regexTitreValue.test(tit)) && (regexCategorieValue.test(cat)) && (modal.querySelector("#ajout-photo-work").files.length === 1)){
+                    btnValider.removeAttribute("disabled");
+                } else {
+                    btnValider.setAttribute("disabled", true);
+                }
+                return true
+            }  else if (!verificationTypeFichier(fichierSelectionne[0]) || !verificationTailleImage(fichierSelectionne[0])) {
+                modal.querySelector(".msg-avertissement").textContent = "La taille ou le type d'image n'est pas correct";
+                modal.querySelector(".fichier-photo").appendChild(modal.querySelector(".msg-avertissement"));
+                modal.querySelector(".msg-avertissement").style.display = null;
+                return false
+            }
+    }
+}
+
+// creation fonction pour la verification du type de fichier image
+function verificationTypeFichier(file) {
+    let fileTypesImage = ["image/jpg", "image/png"];
+    for (let i = 0; i < fileTypesImage.length; i++) {
+        if (file.type === fileTypesImage[i]) {
+          return true;
+        }
+    }
     
-    Afficher([...new Set(travauxHotelsEtRestaurant)]);
-});
+    return false;
+}
+
+// creation fonction pour la verification de la taille de l'image
+function verificationTailleImage(file) {
+    if (file.size <= 4000000) {
+        return true
+    }    
+
+    return false
+}
+
+// creation fonction verification titre
+function verificationTitre(titre, msg, inputTitre) {
+    let title = new RegExp("^[a-z0-9A-Z._-]+$");
+    if (title.test(titre)) {
+        msg.style.display = "none";
+        inputTitre.classList.remove("style-erreur");
+        return true
+        
+    } else if (titre==="") {
+        inputTitre.classList.add("style-erreur");
+        msg.style.display = null;
+        msg.textContent = "Ce champ est obligatoire";
+        return false
+    }
+    else {
+        inputTitre.classList.add("style-erreur");
+        msg.style.display = null;
+        msg.textContent = "Le titre ne doit pas contenir de caractere spécial";
+        return false
+    }
+}
+
+// creation fonction verification categorie
+function verificationCategorie(categorie, msg, inputCategorie) {
+    let cat = new RegExp("^[0-9]+$");
+    if (cat.test(categorie)) {
+        msg.style.display = "none";
+        inputCategorie.classList.remove("style-erreur");
+        return true
+        
+    } else if (categorie==="") {
+        inputCategorie.classList.add("style-erreur");
+        msg.style.display = null;
+        msg.textContent = "Ce champ est obligatoire";
+        return false
+    }
+    else {
+        inputCategorie.classList.add("style-erreur");
+        msg.style.display = null;
+        msg.textContent = "La catégorie doit être un nombre entier";
+        return false
+    }
+}
+
+// Création de la fonction pour l'envoie de demande de suppression dans l'API
+async function deleteJSON(dataId) {
+    try {
+        const actionDelete = await fetch(`http://localhost:5678/api/works/${dataId}`, {
+          method: "DELETE",
+          headers: {
+            'Authorization': `Bearer ${tokenAuthentification}`
+         },
+        });
+        return actionDelete.ok
+      } catch (erreur) {
+        console.error("Erreur :", erreur);
+        return false
+    }
+}
+
+// creation de la fonction pour l'ajout de travail dans l'API en utilisant la méthode POST 
+async function postForm(data) {
+    try {
+      const reponse = await fetch("http://localhost:5678/api/works", {
+        method: "POST",
+        headers: {
+          'Authorization': `Bearer ${tokenAuthentification}`
+        },
+        body: data,
+      });
+      const resultat = await reponse.json();
+      return resultat
+    } catch (erreur) {
+      console.error("Erreur :", erreur);
+      return false
+    }
+  } 
+
+// Création de la fonction de suppression des photos dans la modal galerie photo
+const supprimerPhoto = async function (e) {
+    e.preventDefault();
+    let elementTarget = null;
+    let getId = await e.target.getAttribute("class");
+    let id = 0;
+    if (getId === modal.querySelector(".icone-supprimer-photo").getAttribute("class")) {
+        id = e.target.getAttribute("id");
+        elementTarget = e.target
+    } else {
+        id = e.target.parentElement.getAttribute("id");
+        elementTarget = e.target.parentElement;
+    }
+    console.log(id);
+    console.log(elementTarget.parentElement);
+    deleteJSON(id).then(async (value) => {
+        console.log(value);
+        if (value === true) {
+            const elementToDelete = elementTarget.parentElement
+            elementToDelete.remove();
+            reponseWorks = await fetch('http://localhost:5678/api/works');
+            travaux = await reponseWorks.json();
+            Afficher(travaux);
+        } else{
+            console.error("Erreur : suppression non effectué car l'API a renvoyé la valeur", value);
+        }
+    });
+}
+
+// création fonction de fermeture des modals
+const closeModal = function (e) {
+    if (modal === null) return
+    e.preventDefault();
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden", "true");
+    modal.removeAttribute("aria-modal");
+    for (let i = 0; i < modal.querySelectorAll("#btn-fermeture-modal").length; i++) {
+        modal.querySelectorAll("#btn-fermeture-modal")[i].removeEventListener("click", closeModal);
+        modal.querySelectorAll(".container")[i].removeEventListener("click", stopPropagation);
+    }
+    modal.removeEventListener("click", closeModal);
+    modal = null;
+}
+
+// fonction stop propagation
+const stopPropagation = function (e) {
+    e.stopPropagation();
+}
+
+// Extraction du code html du modal dans la page modal.html et son ajout dans la page principale
+const loadModal = async function (url) {
+    const target = "#" + url.split("#")[1];
+    const existingModal = document.querySelector(target);
+    if (existingModal !== null) return existingModal
+    const html = await fetch(url).then(reponse => reponse.text());
+    const element = document.createRange().createContextualFragment(html).querySelector(target);
+    if (element === null) throw `l'élement ${target} n'a pas été trouvé dans la page ${url}`
+    document.body.append(element);
+    return element
+}
+ 
+// Execution ouverture modal au clique sur le bouton modifier
+lienOuvertureModal.addEventListener("click", openModal);
