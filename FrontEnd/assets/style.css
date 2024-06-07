@@ -30,6 +30,10 @@ footer, header, hgroup, menu, nav, section {
 }
 body {
 	line-height: 1;
+	background-color: #FFFEF8;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 ol, ul {
 	list-style: none;
@@ -47,17 +51,72 @@ table {
 	border-spacing: 0;
 }
 /** end reset css**/
-body {
+.main-container, .main-container-page-edit {
 	max-width: 1140px;
+	margin: auto;
+	font-family: 'Work Sans' ;
+	font-size: 14px;
+}
+
+.main-container-page-connexion {
+	max-width: 1140px;
+	height: 964px;
 	margin:auto;
 	font-family: 'Work Sans' ;
 	font-size: 14px;
 }
+
+.modification {
+	width: 100%;
+	height: 59px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: #000;
+	position: fixed;
+	z-index: 10;
+}
+
+.modification i {
+	color: #FFFFFF;
+	width: 15.58px;
+	height: 15.58px;
+	margin-right: 7px;
+}
+
+.modification p {
+	color: #FFFFFF;
+	font-family: 'Work sans';
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 18.77px;
+	margin-left: 7px;
+}
+
+.modification.masquer {
+	display: none;
+}
+
 header {
 	display: flex;
 	justify-content: space-between;
-	margin: 50px 0
+	margin: 50px 0;
+	width: 1140px;
+	height: 42px;
+	font-family: 'Work Sans';
 }
+
+.main-container-page-edit header {
+	margin-top: 100px;
+}
+
+main {
+	width: 955px;
+	margin: 150px auto 0px auto;
+	position: relative;
+}
+
+
 section {
 	margin: 50px 0
 }
@@ -68,14 +127,15 @@ h1{
 	font-family: 'Syne';
 	font-size: 22px;
 	font-weight: 800;
-	color: #B1663C
+	color: #B1663C;
+	width: 213px;
+	height: 42px;
 }
 
 h1 > span {
 	font-family: 'Work Sans';
 	font-size:10px;
 	letter-spacing: 0.1em;
-;
 }
 
 h2{
@@ -84,66 +144,156 @@ h2{
 	font-size: 30px;
 	color: #1D6154
 }
+
 nav ul {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	list-style-type: none;
-
 }
-nav li {
+
+nav ul li {
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 18.77px;
 	padding: 0 10px;
 	font-size: 1.2em;
+	text-align: center;
+	cursor: default;
 }
 
-li:hover {
-	color: #B1663C;
+nav ul li a {
+	text-decoration: none;
+	color: #000;
 }
+
+nav ul li img {
+	position: relative;
+	top: 2px;
+	width: 22px;
+	height: 22PX;
+}
+
+.main-container-page-connexion header nav ul li a {
+	cursor: unset;
+	font-weight: 1000;
+}
+
+header nav ul li:hover, header nav ul li a:hover {
+	font-weight: 1000;
+}
+
+.main-container-page-connexion header nav ul li a:hover {
+	font-size: 18px;
+}
+
 #introduction {
 	display: flex;
 	align-items: center;
 }
+
 #introduction figure {
 	flex: 1
 }
-#introduction img {
+
+#introduction figure img {
 	display: block;
 	margin: auto;
-	width: 80%;
+	width: 474px;
+	height: 355px;
 }
 
 #introduction article {
-	flex: 1
+	flex: 1;
+	height: 228px;
 }
-#introduction h2 {
-	margin-bottom: 1em;
+
+#introduction article .paragraphe {
+	width: 404px;
+	height: 192px;
+	margin: 0px 0px 0px auto;
+}
+#introduction article h2 {
+	width: 303px;
+	height: 36px;
+	margin: 0px auto 20px 70px;
 }
 
 #introduction p {
-	margin-bottom: 0.5em;
+	margin-bottom: 1.5em;
 }
 
 #portfolio {
 	margin-top: 150px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
-#portfolio h2 {
-	text-align: center;
+#portfolio .titre-projets {
 	margin-bottom: 1em;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#portfolio .titre-projets h2 {
+	height: 40px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.btn-modifier {
+	width: 80px;
+	margin-left: 60px;
+	height: 16px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	text-decoration: none;
+	text-align: center;
+	color: #000;
+}
+
+.btn-modifier.invisible {
+	display: none;
+}
+
+#portfolio .titre-projets a p {
+	font-family: 'Work sans';
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 16.42px;
+	text-align: center;
+}
+
+#portfolio .titre-projets a i {
+	height: 15.58px;
+	width: 15.58px;
 }
 
 .categories {
-	width: 585px;
+	width: 100%;
 	height: 38px;
-	margin: 70px auto 0px auto;
+	margin: 70px 0px 0px 0px;
 	display: flex;
-	justify-content: space-between;
+	justify-content: center;
+}
+
+.categories.btn-inactive {
+	display: none;
 }
 
 .categories button {
-	display: block;
-	width: 100px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-width: 100px;
+	padding: 0px 26px;
 	height: 37px;
-	background-color: #fff;
+	background-color: #FFFEF8;
 	color: #1D6154;
 	border: 1px solid #1D6154;
 	border-radius: 60px;
@@ -151,14 +301,7 @@ li:hover {
 	font-weight: 700;
 	font-size: 16px;
 	line-height: 19.2px;
-}
-
-.categories button:nth-child(3) {
-	width: 157px;
-}
-
-.categories button:nth-child(4) {
-	width: 198px;
+	margin: 0px 5px;
 }
 
 .categories button:focus {
@@ -177,39 +320,59 @@ li:hover {
 
 .gallery img {
 	width: 100%;
-
 }
+
+.connexion {
+	width: 379px;
+	margin: 150px auto;
+}
+
 #contact {
 	width: 50%;
 	margin: auto;
+	z-index: 10;
 }
-#contact > * {
+#contact, .connexion > * {
 	text-align: center;
 
 }
-#contact h2{
+#contact h2, .connexion h2{
 	margin-top: 70px;
 	margin-bottom: 20px;
 }
-#contact form {
+#contact form, .connexion form {
 	text-align: left;
 	margin-top:30px;
 	display: flex;
 	flex-direction: column;
 }
 
-#contact input {
+#contact input, .connexion input {
 	height: 50px;
 	font-size: 1.2em;
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
-#contact label {
+#contact label, .connexion label {
 	margin: 2em 0 1em 0;
 }
 #contact textarea {
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+}
+
+.connexion .login a {
+	text-align: center;
+	color: #000;
+}
+
+.connexion .login p {
+	margin-top: 20px;
+	text-align: center;
+	color: red;
+	font-size: 18px;
+	font-weight: 700;
+	font-family: 'Work sans';
 }
 
 input[type="submit"]{
@@ -221,10 +384,47 @@ input[type="submit"]{
 	width: 180px;
 	text-align: center;
 	border-radius: 60px ;
+	cursor: pointer;
+}
+
+.connexion input[type="submit"]:hover {
+	background-color: #0a352d;
+}
+
+.connexion .login .email, .connexion .login .password {
+	border: 2px solid red;
+}
+
+.connexion .login .email:focus, .connexion .login .password:focus {
+	outline: none;
+}
+
+#msg-erreur-saisi-email, #msg-erreur-saisi-password {
+	text-align: center;
+	color: red;
+	font-size: 18px;
+	margin-top: 10px;
+	font-weight: 500;
+}
+
+footer {
+	width: 100vw;
+	max-width: 1440px;
+	height: 60px;
+	background-color: #ffffff;
+	margin: 0px auto;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
 }
 
 footer nav ul {
-	display: flex;
-	justify-content: flex-end;
-	margin: 2em
+	margin: auto 12em;
+}
+
+footer nav ul li {
+	font-family: 'Work Sans';
+	font-size: 14px;
+	font-weight: 300;
+	line-height: 16.42px;
 }
