@@ -149,6 +149,7 @@ async function postJSON(data) {
         // envoie de l'email et du mot de passe vers l'API
         postJSON(donnees).then((value)=>{
             let tokenAuthentification = value; // recuperation du token de connexion
+            console.log(value);
             const Email = document.getElementById("email");
             const Password = document.getElementById("password");
             const inputEmail = Email.value;
@@ -209,9 +210,9 @@ async function postJSON(data) {
             }
 
             else {
-                window.location.href = "pageEdit.html"; // redirection vers la page de modification
+                localStorage.setItem("token", tokenAuthentification)
+                window.location.href = "index.html"; // redirection vers la page de modification
             }
-            console.log(value);
         })
   })
   
