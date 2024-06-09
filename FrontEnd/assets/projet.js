@@ -115,10 +115,30 @@ const openModal = async function (e) {
     const labelCategorie = modal.querySelector(".categorie"); // recuperation de l'element label categorie
     const btnAjoutPhotoTravail = modal.querySelector("#ajout-photo-work"); // recuperation de l'element bouton pour charger une nouvelle image
     let titreWork = modal.querySelector("#titre"); // recuperation de l'element input du titre
-    let categorieWork = modal.querySelector("#categorie"); // recuperation de l'element select de la categorie
+
+    // creation de l'element select de la categorie s'il n'existe pas
     let hr = modal.querySelector(".hr"); // recuperation de l'element bar horizontal 
-    modal.querySelector("#titre").value = "";
-    modal.querySelector("#categorie").value = ""
+    if (!modal.querySelector("#categorie")){
+        let sel = document.createElement("select"); // creation de l'element select
+        sel.setAttribute("name", "categorie");
+        sel.setAttribute("id", "categorie");
+        sel.setAttribute("class", "border");
+        sel.classList.add("style-no-error")
+        sel.setAttribute("required", true);
+        formAjoutWork.insertBefore(sel, hr); // insertion avant la barre horizontal
+        let optVide = document.createElement("option"); // creation d'un element option vide
+        optVide.setAttribute("value", "");
+        sel.appendChild(optVide);
+        for (let i = 0; i < categories.length; i++) { // creation des options de selection de categorie presents dans l'API
+            let opt = document.createElement("option");
+            opt.setAttribute("value", `${categoriesId[i]}`);
+            opt.textContent = `${categories[i]}`;
+            sel.appendChild(opt);
+        }
+    }
+    let categorieWork = modal.querySelector("#categorie"); // recuperation de l'element select de la categorie
+    titreWork.value = "";
+    categorieWork.value = ""
     // Creation dans le DOM de l'element paragraphe pour afficher le msg d'avertissement en cas d'un mauvais saisi
     if (modal.querySelectorAll(".msg-erreur").length === 0) {
         let p0 = document.createElement("p"); // creation dans le DOM de l'element paragraphe pour afficher le msg en cas de mauvaise selection du fichier image
@@ -139,11 +159,8 @@ const openModal = async function (e) {
     let msgErreurCategorie = modal.querySelector("#msg-erreur-catgeorie"); // message erreur en cas de categorie vide
     let regexTitreValue = new RegExp("^[a-z0-9A-Z._\\&-]+$"); // creation de regex pour verifier l'expression du titre
     let cat = null; 
-    let tit = null; 
-    console.log(formData);
-    console.log(formData.get("title"), formData.get("category"));
-    console.log(formData.get("image"));
-
+    let tit = null;
+    
     // ajout de la photo du fichier selectionné
     btnAjoutPhotoTravail.addEventListener("change", chargementImageSelectionne);
 
