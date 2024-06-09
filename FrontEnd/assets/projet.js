@@ -39,10 +39,17 @@ Afficher(travaux);
      
      // Declaration de la variable pour la selection du bouton toutes les catgories
      const btnTousLesCategories = document.querySelector(".btn-tous-les-Categories");
-     
+     btnTousLesCategories.focus();
+     document.body.addEventListener("onload", () => {
+        btnTousLesCategories.focus();
+     })
+
      // Affichage de tous les categories
      btnTousLesCategories.addEventListener("click", () => {
-        Afficher(travaux)
+        Afficher(travaux);
+        document.body.addEventListener("click", () => {
+            btnTousLesCategories.focus();
+        })
     });
      
     // Creation des boutons des categories et Ecoute des evenements click des boutons des categories
@@ -55,6 +62,9 @@ Afficher(travaux);
                  return travaux.categoryId === categoriesId[i];
             })
             Afficher([...new Set(filtreTravaux)]);
+            document.body.addEventListener("click", () => {
+                btnCategorie.focus();
+            })
          })
     }
  } else { // Changement en mode d'edition de la page d'accueil si l'authentification est vrai
@@ -185,7 +195,9 @@ const openModal = async function (e) {
     categorieWork.addEventListener("change", (inputevent) => {
         msgErreurCategorie.style.display = "none";
         cat = inputevent.target.value;
+        tit = titreWork.value;
         console.log(inputevent.target.value);
+        console.log(tit);
         verificationCategorie(inputevent.target.value, msgErreurCategorie, categorieWork);
         if((cat !== "" && cat !== undefined && cat !== null) && (regexTitreValue.test(tit) && tit !== null && tit !== undefined && tit !== "") && (modal.querySelector("#ajout-photo-work").files.length === 1)){
             btnValider.removeAttribute("disabled");
@@ -193,6 +205,12 @@ const openModal = async function (e) {
             btnValider.setAttribute("disabled", true);
         }
     });
+
+    if((regexTitreValue.test(tit) && tit !== null && tit !== undefined && tit !== "") && (cat !== "" && cat !== undefined && cat !== null) && (modal.querySelector("#ajout-photo-work").files.length === 1)){
+        btnValider.removeAttribute("disabled");
+    } else {
+        btnValider.setAttribute("disabled", true);
+    }
 
     // affichage de la modal ajouter photo au clique du bouton ajouter photo dans la modal galerie photo
     btnAjoutPhoto.addEventListener("click", () => {
@@ -313,6 +331,7 @@ const chargementImageSelectionne = function (e) {
                 modal.querySelector(".upload-file").style.display = "none";
                 modal.querySelector("#msg-erreur-image").style.display = "none";
                 modal.querySelector(".txt-type-fichier-taille-max").style.display = "none";
+                modal.querySelector("#titre").value = fichierSelectionne[0].name.split(".")[0];
                 let imgSelectionne = document.createElement("img");
                 imgSelectionne.src = window.URL.createObjectURL(fichierSelectionne[0]);
                 imgSelectionne.classList.add("img-selectionne");
