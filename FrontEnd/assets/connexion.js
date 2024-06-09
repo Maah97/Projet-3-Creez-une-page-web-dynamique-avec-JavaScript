@@ -7,7 +7,7 @@ let msgErreurEmail = document.createElement("div");
 let msgErreurPassword = document.createElement("div");
 const labelPassword = document.getElementById("label-password");
 let SauvegardeEmail = Email.value;
-let SauvegardePassword = Password.value
+let SauvegardePassword = Password.value;
 
 // VERIFICATION SAISIE AU CLAVIER DE L'Email ET DU Mot De Passe
 
@@ -210,7 +210,7 @@ async function postJSON(data) {
             }
 
             else {
-                localStorage.setItem("token", tokenAuthentification)
+                localStorage.setItem("token", tokenAuthentification) // Enregistrement du token de connexion
                 window.location.href = "index.html"; // redirection vers la page de modification
             }
         })
