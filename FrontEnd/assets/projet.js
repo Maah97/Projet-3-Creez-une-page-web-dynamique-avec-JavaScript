@@ -15,7 +15,7 @@ let categoriesId = [...new Set(categoriesAPImapId)];
 
 // recuperation de la div categorie et de la div galellery du html
 const galerie = document.querySelector(".gallery");
-const Divcategorie = document.querySelector(".categories");
+const divCategorie = document.querySelector(".categories");
 
 // creation fonction affichage de la galerie
 function Afficher(projets) {
@@ -39,32 +39,25 @@ Afficher(travaux);
      
      // Declaration de la variable pour la selection du bouton toutes les catgories
      const btnTousLesCategories = document.querySelector(".btn-tous-les-Categories");
-     btnTousLesCategories.focus();
      document.body.addEventListener("onload", () => {
         btnTousLesCategories.focus();
-     })
+     });
 
      // Affichage de tous les categories
      btnTousLesCategories.addEventListener("click", () => {
         Afficher(travaux);
-        document.body.addEventListener("click", () => {
-            btnTousLesCategories.focus();
-        })
     });
      
     // Creation des boutons des categories et Ecoute des evenements click des boutons des categories
     for (let i = 0; i < categories.length; i++) {
          let btnCategorie = document.createElement("button");
          btnCategorie.textContent = categories[i];
-         Divcategorie.appendChild(btnCategorie);
+         divCategorie.appendChild(btnCategorie);
          btnCategorie.addEventListener("click", () => {
              const filtreTravaux = travaux.filter(function (travaux){
                  return travaux.categoryId === categoriesId[i];
             })
             Afficher([...new Set(filtreTravaux)]);
-            document.body.addEventListener("click", () => {
-                btnCategorie.focus();
-            })
          })
     }
  } else { // Changement en mode d'edition de la page d'accueil si l'authentification est vrai
@@ -80,7 +73,7 @@ Afficher(travaux);
     lienlogout.textContent = "logout"
     container.classList.add("main-container-page-edit");
     btnModifier.classList.remove("invisible");
-    Divcategorie.classList.add("btn-inactive");
+    divCategorie.classList.add("btn-inactive");
     lienlogout.addEventListener("click", () => {
         localStorage.removeItem("token");
     })
@@ -89,7 +82,7 @@ Afficher(travaux);
  
  // GESTION DES MODALS
 
- // 1. Déclaration des variable
+ // 1. Déclaration des variables
 
  let modal = null; // initialisation du container de la modal
  let formData = new FormData(); // declaration de la variable formData pour l'envoie du formulaire de la modal
@@ -148,7 +141,7 @@ const openModal = async function (e) {
     }
     let categorieWork = modal.querySelector("#categorie"); // recuperation de l'element select de la categorie
     titreWork.value = "";
-    categorieWork.value = ""
+    categorieWork.value = "";
     // Creation dans le DOM de l'element paragraphe pour afficher le msg d'avertissement en cas d'un mauvais saisi
     if (modal.querySelectorAll(".msg-erreur").length === 0) {
         let p0 = document.createElement("p"); // creation dans le DOM de l'element paragraphe pour afficher le msg en cas de mauvaise selection du fichier image
@@ -164,10 +157,10 @@ const openModal = async function (e) {
         p2.setAttribute("id", "msg-erreur-catgeorie");
         formAjoutWork.insertBefore(p2, hr);
     }
-    let msgErreurImage = document.querySelector("#msg-erreur-image"); // message en cas d'un mauvaise selection du fichier image
+    let msgErreurImage = document.querySelector("#msg-erreur-image"); // message en cas d'une mauvaise selection du fichier image
     let msgErreurTitre = modal.querySelector("#msg-erreur-titre"); // message erreur en cas d'un mauvais saisi du titre
     let msgErreurCategorie = modal.querySelector("#msg-erreur-catgeorie"); // message erreur en cas de categorie vide
-    let regexTitreValue = new RegExp("^[a-z0-9A-Z._\\&-]+$"); // creation de regex pour verifier l'expression du titre
+    let regexTitreValue = new RegExp("^[a-z0-9A-Z_\\&-]+$"); // creation de regex pour verifier l'expression du titre
     let cat = null; 
     let tit = null;
     
@@ -292,7 +285,7 @@ const openModal = async function (e) {
     });
 }
 
-// Creation de la fonction qui permet d'afficher les photos dans la modal galerie photo
+// Creation de la fonction qui permet d'afficher et de supprimer les photos dans la modal galerie photo
 async function AfficherTravauxDansLeModal() {
     const galerieModal = modal.querySelector(".galerie-modal");
     galerieModal.innerHTML = ""
@@ -337,7 +330,7 @@ const chargementImageSelectionne = function (e) {
                 imgSelectionne.classList.add("img-selectionne");
                 modal.querySelector(".fichier-photo").appendChild(imgSelectionne);
                 modal.querySelector(".fichier-photo").style.justifyContent = "center";
-                let regexTitreValue = new RegExp("^[a-z0-9A-Z._\\&-]+$");
+                let regexTitreValue = new RegExp("^[a-z0-9A-Z_\\&-]+$");
                 let cat = modal.querySelector("#categorie").value;
                 let tit = modal.querySelector("#titre").value;
                 let btnValider = modal.querySelector(".btn-valider-ajout-image");

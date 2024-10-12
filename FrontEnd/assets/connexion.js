@@ -56,7 +56,7 @@ function verificationPassword(motDepasse, elementPassword, elementmsgErreurPassw
     let passwordPresenceChiffre = new RegExp("[0-9]{1}");
     let passwordPresenceMinuscule = new RegExp("[a-z]{1}");
     let passwordPresenceMajuscule = new RegExp("[A-Z]{1}");
-    let passwordAbsenceCaractereSpeciaux = new RegExp("[\\ \\+\\\\\%\\*\\#\\~\\&\\)\\(\\ù\\=\\.\\;\\§\\£\\$\\µ\\²\\ç\\/\\°\\@\\!\\_\\-\\<\\>\\`\\'\\\"\\^\\¨\\||\\{\\}\\\[\\\]\\?\\!\\:\\,àèéù]");
+    let passwordAbsenceCaractereSpeciaux = new RegExp("[\\ \\+\\\\\%\\*\\#\\~\\&\\)\\(\\ù\\=\\.\\;\\§\\£\\$\\µ\\²\\ç\\/\\°\\@\\!\\_\\-\\<\\>\\`\\'\\\"\\^\\¨\\||\\{\\}\\\[\\\]\\?\\!\\:\\,\\à\\è\\é\\ù]");
     if ((motDepasse==="")) {
         elementPassword.classList.remove("password");
         elementmsgErreurPassword.remove();
